@@ -8,7 +8,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 
 #input image path here
 def extract_text(image_path):
-    img = cv2.imread(image_path)
+    img = cv2.imread("sample.png")
 
     if img is None:
         print("Image not found. Check file name/path.")
@@ -23,8 +23,12 @@ def extract_text(image_path):
 
 
 if __name__ == "__main__":
-    image_path = "sample.jpg"   # put any image here
+    image_path = "sample.jpg"
+
     extracted_text = extract_text(image_path)
 
-    print("Extracted Text:\n")
-    print(extracted_text)
+    with open("output.txt", "w", encoding="utf-8") as f:
+        f.write(extracted_text)
+
+    print("Text saved to output.txt")
+
