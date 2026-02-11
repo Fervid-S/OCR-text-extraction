@@ -1,9 +1,4 @@
-On branch main
-Your branch is up to date with 'origin/main'.
-
-nothing to commit, working tree clean
-PS C:\Users\KIIT0001\Desktop\ocr-project> git push
-Everything up-to-dateimport streamlit as st
+import streamlit as st
 import easyocr
 import cv2
 import numpy as np
