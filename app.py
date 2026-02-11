@@ -1,34 +1,53 @@
-import streamlit as st
-import pytesseract
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+PS C:\Users\KIIT0001\Desktop\ocr-project> git push
+Everything up-to-dateimport streamlit as st
+import easyocr
 import cv2
 import numpy as np
 from PIL import Image
 
-# Update path if needed
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-
 st.set_page_config(page_title="OCR App", layout="centered")
 
-st.title("📄 OCR Text Extractor")
-st.write("Upload an image and extract text using Tesseract OCR.")
+st.title("📄 OCR Text Extractor (EasyOCR)")
+st.write("Upload an image and extract text using Deep Learning OCR with bounding boxes.")
+
+# Initialize EasyOCR reader (loads model once)
+@st.cache_resource
+def load_reader():
+    return easyocr.Reader(['en'])
+
+reader = load_reader()
 
 uploaded_file = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg"])
 
 if uploaded_file:
-    image = Image.open(uploaded_file)
+    image = Image.open(uploaded_file).convert("RGB")
     img_array = np.array(image)
 
-    gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
-    gray = cv2.medianBlur(gray, 3)
+    # Run OCR
+    results = reader.readtext(img_array)
 
-    text = pytesseract.image_to_string(gray)
+    extracted_text = ""
+    boxed_image = img_array.copy()
 
-    st.image(image, caption="Uploaded Image", use_container_width=True)
+    # Draw bounding boxes + collect text
+    for bbox, text, prob in results:
+        extracted_text += text + " "
+
+        pts = np.array(bbox).astype(int)
+        cv2.polylines(boxed_image, [pts], True, (0, 255, 0), 2)
+
+    st.subheader("Detected Text Areas")
+    st.image(boxed_image, use_container_width=True)
+
     st.subheader("Extracted Text")
-    st.text_area("", text, height=300)
+    st.text_area("", extracted_text, height=300)
 
     st.download_button(
-        "Download Text",
-        text,
+        label="Download Text",
+        data=extracted_text,
         file_name="output.txt"
     )
